@@ -141,7 +141,14 @@ updateInventory
   :: Inventory
   -> Basket
   -> Either Problem Inventory
-updateInventory inv bask = undefined
+updateInventory inv bask = M.mergeA M.preserveMissing (M.traverseMissing missingDescrpInv) (M.zipWithAMatched difference) inv bask
+  where
+    difference _ x y = if x<y
+      then
+        Left OutOfStock
+      else
+        Right (x-y)
+    missingDescrpInv _ _ = Left DescriptionNotFound
 
 -- | Given a list of rebates, and a shopping basket with prices attached,
 -- return the total cost of the basket.
